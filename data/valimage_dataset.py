@@ -71,11 +71,15 @@ class ValImageDataset(BaseDataset):
         image_tensor = self.image_transform(image)
         # mask image
         mask_path = self.mask_paths[index]
-        mask = Image.open(mask_path)
-        mask = mask.convert("L")
-        mask = mask.resize((w,h))
-        mask_tensor = self.mask_transform(mask)
-        mask_tensor = (mask_tensor>0).float()
+        # mask = Image.open(mask_path)
+        # mask = mask.convert("L")
+        # mask = mask.resize((w,h))
+        # mask_tensor = self.mask_transform(mask)
+        # mask_tensor = (mask_tensor>0).float()
+        mask_tensor = torch.zeros((1,image_tensor.shape[1],image_tensor.shape[2]))
+        # make center of mask 1 (50% of image)
+        mask_tensor[:,:,h//4:3*h//4] = 1
+
         input_dict = {
                       'image': image_tensor,
                       'mask': mask_tensor,

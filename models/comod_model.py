@@ -54,7 +54,7 @@ class CoModModel(torch.nn.Module):
             self.eigvec = torch.load(opt.factor)["eigvec"].to(self.device)
         # set loss functions
         if opt.isTrain:
-            if not opt.continue_train:
+            if opt.continue_train:
                 if opt.load_pretrained_g is not None:
                     print(f"looad {opt.load_pretrained_g}")
                     self.netG = util.load_network_path(
