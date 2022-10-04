@@ -17,7 +17,7 @@ pip install git+https://github.com/zengxianyu/pytorch-fid
 Download the code:
 
 ```
-git clone https://github.com/zengxianyu/co-mod-gan-pytorch
+git clone https://github.com/weberhen/co-mod-gan-pytorch
 git checkout train
 git submodule init
 git submodule update
