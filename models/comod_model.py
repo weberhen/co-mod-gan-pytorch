@@ -201,6 +201,7 @@ class CoModModel(torch.nn.Module):
 
     def make_mask(self, data):
         b,c,h,w = data['image'].shape
+        # mask = torch.ones(b,1,h,w, device=self.device)
         if self.opt.isTrain:
             # generate random stroke mask
             mask1 = self.mask_creator.stroke_mask(h, w, max_length=min(h,w)/2)
@@ -220,6 +221,12 @@ class CoModModel(torch.nn.Module):
             if self.use_gpu():
                 data['mask'] = data['mask'].cuda()
             mask = data['mask']
+        # # make mask all black
+        # mask = mask * 0
+        # mask = mask + 1
+        # # put mask in the center (50% of the image)
+        # mask[:,:,h//4:3*h//4,w//4:3*w//4] = 0
+        # data['mask'] = mask
         return mask
 
     def mixing_noise(self, batch):

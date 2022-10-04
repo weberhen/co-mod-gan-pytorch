@@ -3,11 +3,11 @@ python train.py \
 	--batchSize 2 \
 	--nThreads 2 \
 	--name comod_places \
-	--train_image_dir ./datasets/places2sample1k_val/places2samples1k_crop256 \
-	--train_image_list ./datasets/places2sample1k_val/files.txt \
+	--train_image_dir /root/datasets_raid/zillow/panos \
+	--train_image_list /root/datasets_raid/zillow/panos_split/train.txt \
 	--train_image_postfix '.jpg' \
-	--val_image_dir ./datasets/places2sample1k_val/places2samples1k_crop256 \
-	--val_image_list ./datasets/places2sample1k_val/files.txt \
+	--val_image_dir /root/datasets_raid/zillow/panos \
+	--val_image_list /root/datasets_raid/zillow/panos_split/valid.txt \
 	--val_mask_dir ./datasets/places2sample1k_val/places2samples1k_256_mask_square128 \
 	--load_size 512 \
 	--crop_size 256 \

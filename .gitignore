@@ -1,0 +1,6 @@
+*.pyc
+*.pth
+*.png
+*.pkl
+output/
+checkpoints/
