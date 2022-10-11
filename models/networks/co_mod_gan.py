@@ -210,7 +210,7 @@ class G_synthesis_co_mod_gan(nn.Module):
                         upsample=False)
                 self.ToRGB = ToRGB(
                         nf(res-1),
-                        mod_size, out_channel=opt.num_channels)
+                        mod_size, out_channel=32*3)
             def forward(self, x, y, dlatents_in, x_global, E_features):
                 x_skip = E_features[self.res]
                 mod_vector = get_mod(dlatents_in, res*2-5, x_global)
@@ -242,7 +242,7 @@ class G_synthesis_co_mod_gan(nn.Module):
                 self.ToRGB = ToRGB(
                         nf(1),
                         style_dim=mod_size,
-                        upsample=False, out_channel=opt.num_channels)
+                        upsample=False, out_channel=32*3)
             def forward(self, x, dlatents_in, x_global):
                 x = self.Dense(x)
                 x = x.view(-1, nf(1), 4, 4)
@@ -271,7 +271,8 @@ class G_synthesis_co_mod_gan(nn.Module):
         for res in range(3, self.resolution_log2 + 1):
             block = getattr(self, 'G_%dx%d' % (2**res, 2**res))
             x, y = block(x, y, dlatents_in, x_global, E_features)
-        raw_out = y
+        raw_out = y[:,:3,:,:]
+        y = y[:,:3,:,:]
         images_out = y * masks_in + images_in * (1-masks_in)
         return images_out, raw_out
 

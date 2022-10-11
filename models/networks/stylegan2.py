@@ -425,7 +425,7 @@ class ConvToRGB(nn.Module):
 
 
 class ToRGB(nn.Module):
-    def __init__(self, in_channel, style_dim, upsample=True, blur_kernel=[1, 3, 3, 1], out_channel=3,weightedconv=False,
+    def __init__(self, in_channel, style_dim, upsample=True, blur_kernel=[1, 3, 3, 1], out_channel=96,weightedconv=False,
             num_weight=None):
         super().__init__()
 
