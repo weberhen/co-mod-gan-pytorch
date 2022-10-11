@@ -71,6 +71,7 @@ class TestImageDataset(BaseDataset):
         output_path = self.output_paths[index]
         image_path = self.image_paths[index]
         image = Image.open(image_path)
+        image = image.resize((self.opt.load_size, self.opt.load_size), Image.BICUBIC)
         image = image.convert('RGB')
         w, h = image.size
         image_tensor = self.image_transform(image)

@@ -67,11 +67,11 @@ class CoModModel(torch.nn.Module):
                     print(f"looad {opt.load_pretrained_d}")
                     self.netD = util.load_network_path(
                             self.netD, opt.load_pretrained_d)
-                self.mask_creator = MaskCreator(opt.path_objectshape_list, opt.path_objectshape_base)
             self.criterionGAN = networks.GANLoss(
                 opt.gan_mode, tensor=self.FloatTensor, opt=self.opt)
             if not opt.no_vgg_loss:
                 self.criterionVGG = networks.VGGLoss(self.opt.gpu_ids)
+        self.mask_creator = MaskCreator(opt.path_objectshape_list, opt.path_objectshape_base)
         if opt.truncation is not None:
             self.truncation_mean = self.mean_latent(4096)
 
@@ -222,11 +222,12 @@ class CoModModel(torch.nn.Module):
                 data['mask'] = data['mask'].cuda()
             mask = data['mask']
         # # make mask all black
-        # mask = mask * 0
-        # mask = mask + 1
-        # # put mask in the center (50% of the image)
-        # mask[:,:,h//4:3*h//4,w//4:3*w//4] = 0
-        # data['mask'] = mask
+        mask = mask * 0
+        mask = mask + 1
+        # put mask in the center (random between 25% and 50%)
+        rand_mask_size = random.randint(h//4, h//2)
+        mask[:, :, h//2-rand_mask_size//2:h//2+rand_mask_size//2,w//2-rand_mask_size//2:w//2+rand_mask_size//2] = 0
+        data['mask'] = mask
         return mask
 
     def mixing_noise(self, batch):

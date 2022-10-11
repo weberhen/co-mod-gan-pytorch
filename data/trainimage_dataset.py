@@ -1,3 +1,4 @@
+import numpy as np
 from data.base_dataset import get_params, get_transform, BaseDataset
 from PIL import Image
 from data.image_folder import make_dataset
@@ -45,6 +46,13 @@ class TrainImageDataset(BaseDataset):
         # input image (real images)
         image_path = self.image_paths[index]
         image = Image.open(image_path)
+        # random horizontal shuffle
+        # create random shift value in pixels
+        random_shuffle = np.random.randint(0, image.size[0])
+        # roll image horizontally
+        image = np.roll(np.array(image), random_shuffle, axis=1)
+        # convert to PIL image
+        image = Image.fromarray(image)
         image = image.convert('RGB')
         params = get_params(self.opt, image.size)
         transform_image = get_transform(self.opt, params)

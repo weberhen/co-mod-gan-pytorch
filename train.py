@@ -16,18 +16,12 @@ from torchvision.utils import make_grid
 from trainers import create_trainer
 from save_remote_gs import init_remote, upload_remote
 from models.networks.sync_batchnorm import DataParallelWithCallback
-from pytorch_fid.fid_model import FIDModel
+from pytorch_fid import fid_score
 
 # parse options
 opt = TrainOptions().parse()
 
-# fid
-fid_model = FIDModel().cuda()
-fid_model.model = DataParallelWithCallback(
-        fid_model.model,
-        device_ids=opt.gpu_ids)
-
-
+fid_model = fid_score
 # load remote 
 if opt.save_remote_gs is not None:
     init_remote(opt)
@@ -142,11 +136,11 @@ for epoch in iter_counter.training_epochs():
                     psnr = get_psnr(generated, gt)
                     psnr_total += psnr
                     num += bsize
-                    fid_model.add_sample((generated+1)/2,(gt+1)/2)
+                    # fid_model.add_sample((generated+1)/2,(gt+1)/2)
                 psnr_total /= num
-                fid = fid_model.calculate_activation_statistics()
-                writer.add_scalar("val.fid", fid, iter_counter.total_steps_so_far)
-                writer.write_scalar("val.fid", fid, iter_counter.total_steps_so_far)
+                # fid = fid_model.calculate_activation_statistics()
+                # writer.add_scalar("val.fid", fid, iter_counter.total_steps_so_far)
+                # writer.write_scalar("val.fid", fid, iter_counter.total_steps_so_far)
                 writer.add_scalar("val.psnr", psnr_total, iter_counter.total_steps_so_far)
                 writer.write_scalar("val.psnr", psnr_total, iter_counter.total_steps_so_far)
                 writer.write_html()

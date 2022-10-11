@@ -4,5 +4,3 @@
 *.pkl
 output/
 checkpoints/
-logger/
-logger
