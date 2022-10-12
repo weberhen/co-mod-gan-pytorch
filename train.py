@@ -17,7 +17,7 @@ from trainers import create_trainer
 from save_remote_gs import init_remote, upload_remote
 from models.networks.sync_batchnorm import DataParallelWithCallback
 from pytorch_fid import fid_score
-from training.triplane import TriPlaneGenerator
+
 
 # parse options
 opt = TrainOptions().parse()
@@ -98,18 +98,6 @@ def display_batch(epoch, data_i):
                     vis,
                     iter_counter.total_steps_so_far)
     writer.write_html()
-
-# load /root/codes/co-mod-gan-pytorch/G_init_kwargs.pkl
-import pickle
-with open('/root/codes/co-mod-gan-pytorch/G_init_kwargs.pkl', 'rb') as f:
-    G_init_kwargs = pickle.load(f)
-# load /root/codes/co-mod-gan-pytorch/G_rendering_kwargs.pkl
-with open('/root/codes/co-mod-gan-pytorch/G_rendering_kwargs.pkl', 'rb') as f:
-    G_rendering_kwargs = pickle.load(f)
-G_new = TriPlaneGenerator(*(), **G_init_kwargs).to('cuda')
-G_new.neural_rendering_resolution = 64
-G_new.rendering_kwargs = G_rendering_kwargs
-G = G_new
 
 for epoch in iter_counter.training_epochs():
     iter_counter.record_epoch_start(epoch)

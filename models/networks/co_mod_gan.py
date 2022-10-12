@@ -7,6 +7,7 @@ from torch.nn import functional as F
 from models.networks.op import FusedLeakyReLU, fused_leaky_relu, upfirdn2d
 from models.networks.stylegan2 import PixelNorm, EqualLinear, EqualConv2d,ConvLayer,StyledConv,ToRGB,ConvToRGB,TransConvLayer
 import numpy as np
+from training.triplane import TriPlaneGenerator
 
 from models.networks.base_network import BaseNetwork
 
@@ -83,6 +84,21 @@ class G_synthesis_co_mod_gan(nn.Module):
         act = opt.nonlinearity
         self.num_layers = resolution_log2 * 2 - 2
         self.resolution_log2 = resolution_log2
+        # load /root/codes/co-mod-gan-pytorch/G_init_kwargs.pkl
+        import pickle
+        with open('/root/codes/co-mod-gan-pytorch/G_init_kwargs.pkl', 'rb') as f:
+            G_init_kwargs = pickle.load(f)
+        # load /root/codes/co-mod-gan-pytorch/G_rendering_kwargs.pkl
+        with open('/root/codes/co-mod-gan-pytorch/G_rendering_kwargs.pkl', 'rb') as f:
+            G_rendering_kwargs = pickle.load(f)
+        G_rendering_kwargs['image_resolution'] = opt.crop_size
+        G_rendering_kwargs['superresolution_module'] = 'training.superresolution.SuperresolutionHybrid4X'
+        G_init_kwargs['img_resolution'] = opt.crop_size
+        G_init_kwargs['rendering_kwargs']['superresolution_module'] = 'training.superresolution.SuperresolutionHybrid4X'
+        G_new = TriPlaneGenerator(*(), **G_init_kwargs).to('cuda')
+        G_new.neural_rendering_resolution = 64
+        G_new.rendering_kwargs = G_rendering_kwargs
+        self.G = G_new
 
         class E_fromrgb(nn.Module): # res = 2..resolution_log2
             def __init__(self, res, channel_in=opt.num_channels+1):
@@ -271,8 +287,12 @@ class G_synthesis_co_mod_gan(nn.Module):
         for res in range(3, self.resolution_log2 + 1):
             block = getattr(self, 'G_%dx%d' % (2**res, 2**res))
             x, y = block(x, y, dlatents_in, x_global, E_features)
-        raw_out = y[:,:3,:,:]
-        y = y[:,:3,:,:]
+        raw_out = y
+        c = torch.zeros(4,0).to(raw_out.device)
+        gen_output = self.G.synthesis(y, dlatents_in, c, neural_rendering_resolution=self.G.neural_rendering_resolution)
+        
+        # return images_out, raw_out
+        y = gen_output['image'][:, :3, :, :]
         images_out = y * masks_in + images_in * (1-masks_in)
         return images_out, raw_out
 

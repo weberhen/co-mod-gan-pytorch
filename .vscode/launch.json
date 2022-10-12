@@ -12,8 +12,8 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [ //train
-                "--batchSize","4",
-                "--nThreads","4",
+                "--batchSize","2",
+                "--nThreads","2",
                 "--name","comod_places",
                 "--train_image_dir","/root/datasets_raid/zillow/panos",
                 "--train_image_list","/root/datasets_raid/zillow/panos_split/train.txt",

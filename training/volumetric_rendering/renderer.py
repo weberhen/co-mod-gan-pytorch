@@ -23,6 +23,7 @@ import cv2
 from training.volumetric_rendering.ray_marcher import MipRayMarcher2
 from training.volumetric_rendering import math_utils
 from training.networks_stylegan2 import pointcloud2normal
+from torch_utils.ops.grid_sample_gradfix import grid_sample
 
 def generate_planes():
     """
@@ -65,7 +66,7 @@ def sample_from_planes(plane_axes, plane_features, coordinates, mode='bilinear',
     coordinates = (2/box_warp) * coordinates # TODO: add specific box bounds
 
     projected_coordinates = project_onto_planes(plane_axes, coordinates).unsqueeze(1)
-    output_features = torch.nn.functional.grid_sample(plane_features, projected_coordinates.float(), mode=mode, padding_mode=padding_mode, align_corners=False).permute(0, 3, 2, 1).reshape(N, n_planes, M, C)
+    output_features = grid_sample(plane_features, projected_coordinates.float(), mode=mode, padding_mode=padding_mode, align_corners=False).permute(0, 3, 2, 1).reshape(N, n_planes, M, C)
     return output_features
 
 def sample_from_3dgrid(grid, coordinates):
@@ -76,7 +77,7 @@ def sample_from_3dgrid(grid, coordinates):
     Returns sampled features of shape (batch_size, num_points_per_batch, feature_channels)
     """
     batch_size, n_coords, n_dims = coordinates.shape
-    sampled_features = torch.nn.functional.grid_sample(grid.expand(batch_size, -1, -1, -1, -1),
+    sampled_features = grid_sample(grid.expand(batch_size, -1, -1, -1, -1),
                                                        coordinates.reshape(batch_size, 1, 1, -1, n_dims),
                                                        mode='bilinear', padding_mode='zeros', align_corners=False)
     N, C, H, W, D = sampled_features.shape
