@@ -84,20 +84,44 @@ class G_synthesis_co_mod_gan(nn.Module):
         act = opt.nonlinearity
         self.num_layers = resolution_log2 * 2 - 2
         self.resolution_log2 = resolution_log2
-        # load /root/codes/co-mod-gan-pytorch/G_init_kwargs.pkl
-        import pickle
-        with open('/root/codes/co-mod-gan-pytorch/G_init_kwargs.pkl', 'rb') as f:
-            G_init_kwargs = pickle.load(f)
-        # load /root/codes/co-mod-gan-pytorch/G_rendering_kwargs.pkl
-        with open('/root/codes/co-mod-gan-pytorch/G_rendering_kwargs.pkl', 'rb') as f:
-            G_rendering_kwargs = pickle.load(f)
-        G_rendering_kwargs['image_resolution'] = opt.crop_size
-        G_rendering_kwargs['superresolution_module'] = 'training.superresolution.SuperresolutionHybrid4X'
-        G_init_kwargs['img_resolution'] = opt.crop_size
-        G_init_kwargs['rendering_kwargs']['superresolution_module'] = 'training.superresolution.SuperresolutionHybrid4X'
+        G_init_kwargs = {
+            'z_dim': 512, 
+            'w_dim': 512, 
+            'mapping_kwargs': {'num_layers': 2}, 
+            'channel_base': 32768, 
+            'channel_max': 512, 
+            'fused_modconv_default': 'inference_only', 
+            'rendering_kwargs': 
+                {'image_resolution': opt.crop_size, 
+                'disparity_space_sampling': False, 
+                'clamp_mode': 'softplus', 
+                'superresolution_module': 'training.superresolution.SuperresolutionHybrid4X', 
+                'c_gen_conditioning_zero': True, 
+                'gpc_reg_prob': None, 
+                'c_scale': 1.0, 
+                'superresolution_noise_mode': 'none', 
+                'density_reg': 0.25, 
+                'density_reg_p_dist': 0.004, 
+                'reg_type': 'l1', 
+                'decoder_lr_mul': 1.0, 
+                'sr_antialias': True, 
+                'depth_resolution': 64, 
+                'depth_resolution_importance': 64, 
+                'ray_start': 0.5, 
+                'ray_end': 10, 
+                'box_warp': 2.0, 
+                'white_back': False, 
+                'avg_camera_radius': 1.7, 
+                'avg_camera_pivot': [0, 0, 0]}, 
+            'num_fp16_res': 0, 
+            'sr_num_fp16_res': 4, 
+            'sr_kwargs': {'channel_base': 32768, 'channel_max': 512, 'fused_modconv_default': 'inference_only'}, 
+            'conv_clamp': None, 
+            'c_dim': 0, 
+            'img_resolution': opt.crop_size, 
+            'img_channels': 7}
+        
         G_new = TriPlaneGenerator(*(), **G_init_kwargs).to('cuda')
-        G_new.neural_rendering_resolution = 64
-        G_new.rendering_kwargs = G_rendering_kwargs
         self.G = G_new
 
         class E_fromrgb(nn.Module): # res = 2..resolution_log2
