@@ -1,8 +1,8 @@
 import random 
 import os
 
-root_folder = '/root/datasets_raid/zillow/panos'
-output_folder = '/root/datasets_raid/zillow/panos_split'
+root_folder = '/root/datasets_ssd/zillow/panos'
+output_folder = '/root/datasets_ssd/zillow/panos_split'
 
 os.makedirs(output_folder, exist_ok=True)
 
