@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw
 import os
 import pdb
 import math
-
+print('Loading models/create_mask.py')
 class MaskCreator:
     def __init__(self, list_mask_path=None, base_mask_path=None, match_size=False):
         self.match_size = match_size

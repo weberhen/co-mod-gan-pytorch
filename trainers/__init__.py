@@ -23,6 +23,5 @@ def find_trainer_using_name(model_name):
 def create_trainer(opt):
     model = find_trainer_using_name(opt.trainer)
     instance = model(opt)
-    print("model [%s] was created" % (type(instance).__name__))
-
+    
     return instance

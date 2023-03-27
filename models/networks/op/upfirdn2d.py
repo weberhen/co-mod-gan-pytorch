@@ -4,7 +4,7 @@ import torch
 from torch.nn import functional as F
 from torch.autograd import Function
 from torch.utils.cpp_extension import load
-
+print('Loading models/networks/op/upfirdn2d.py')
 
 module_path = os.path.dirname(__file__)
 upfirdn2d_op = load(

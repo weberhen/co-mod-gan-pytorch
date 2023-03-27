@@ -9,7 +9,7 @@ from models.networks.stylegan2 import PixelNorm, EqualLinear, EqualConv2d,ConvLa
 import numpy as np
 
 from models.networks.base_network import BaseNetwork
-
+print('Loading models/networks/co_mod_gan.py')
 #----------------------------------------------------------------------------
 # Mapping network.
 # Transforms the input latent code (z) to the disentangled latent code (w).

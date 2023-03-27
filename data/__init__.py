@@ -42,8 +42,6 @@ def create_dataloader(opt):
     dataset = find_dataset_using_name(opt.dataset_mode)
     instance = dataset()
     instance.initialize(opt)
-    print("dataset [%s] of size %d was created" %
-          (type(instance).__name__, len(instance)))
     dataloader = torch.utils.data.DataLoader(
         instance,
         batch_size=opt.batchSize,
@@ -58,8 +56,6 @@ def create_dataloader_trainval(opt):
     dataset = find_dataset_using_name(opt.dataset_mode_train)
     instance = dataset()
     instance.initialize(opt)
-    print("dataset [%s] of size %d was created" %
-          (type(instance).__name__, len(instance)))
     dataloader_train = torch.utils.data.DataLoader(
         instance,
         batch_size=opt.batchSize,
@@ -70,8 +66,6 @@ def create_dataloader_trainval(opt):
     dataset = find_dataset_using_name(opt.dataset_mode_val)
     instance = dataset()
     instance.initialize(opt)
-    print("dataset [%s] of size %d was created" %
-          (type(instance).__name__, len(instance)))
     dataloader_val = torch.utils.data.DataLoader(
         instance,
         batch_size=opt.batchSize,

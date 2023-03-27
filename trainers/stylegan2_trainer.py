@@ -3,7 +3,7 @@ import torch
 from models.networks.sync_batchnorm import DataParallelWithCallback
 import models
 #from models.pix2pix_model import Pix2PixModel
-
+print('Loading trainers/stylegan2_trainer.py')
 
 class StyleGAN2Trainer():
     def __init__(self, opt):

@@ -1,7 +1,7 @@
 import os
 import pdb
 from datetime import datetime
-
+print('Loading save_remote_gs.py')
 def init_remote(opt):
     os.system(f"rm -rf output/{opt.name}")
     cwd = os.getcwd()

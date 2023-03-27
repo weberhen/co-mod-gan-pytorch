@@ -4,7 +4,7 @@ Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses
 """
 
 from .base_options import BaseOptions
-
+print('Loading options/train_options.py')
 
 class TrainOptions(BaseOptions):
     def initialize(self, parser):

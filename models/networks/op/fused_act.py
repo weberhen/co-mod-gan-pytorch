@@ -5,7 +5,7 @@ from torch import nn
 from torch.nn import functional as F
 from torch.autograd import Function
 from torch.utils.cpp_extension import load
-
+print('Loading models/networks/op/fused_act.py')
 
 module_path = os.path.dirname(__file__)
 fused = load(

@@ -13,7 +13,7 @@ try:
     from StringIO import StringIO  # Python 2.7
 except ImportError:
     from io import BytesIO         # Python 3.x
-
+print('Loading util/visualizer.py')
 class Visualizer():
     def __init__(self, opt):
         self.opt = opt

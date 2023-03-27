@@ -4,7 +4,7 @@ from PIL import Image
 from data.image_folder import make_dataset
 import os
 import pdb
-
+print('Loading data/trainimage_dataset.py')
 
 class TrainImageDataset(BaseDataset):
     """ Dataset that loads images from directories

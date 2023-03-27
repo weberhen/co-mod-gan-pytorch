@@ -15,7 +15,7 @@ except:
 
 from models.networks.base_network import BaseNetwork
 from models.networks.op import FusedLeakyReLU, fused_leaky_relu, upfirdn2d
-
+print('Loading models/networks/stylegan2.py')
 #from base_network import BaseNetwork
 #from op import FusedLeakyReLU, fused_leaky_relu, upfirdn2d
 

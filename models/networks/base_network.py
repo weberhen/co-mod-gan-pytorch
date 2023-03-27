@@ -5,7 +5,7 @@ Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses
 
 import torch.nn as nn
 from torch.nn import init
-
+print('Loading models/networks/base_network.py')
 
 class BaseNetwork(nn.Module):
     def __init__(self):
@@ -14,16 +14,6 @@ class BaseNetwork(nn.Module):
     @staticmethod
     def modify_commandline_options(parser, is_train):
         return parser
-
-    def print_network(self):
-        if isinstance(self, list):
-            self = self[0]
-        num_params = 0
-        for param in self.parameters():
-            num_params += param.numel()
-        print('Network [%s] was created. Total number of parameters: %.1f million. '
-              'To see the architecture, do print(network).'
-              % (type(self).__name__, num_params / 1000000))
 
     def init_weights(self, init_type='normal', gain=0.02):
         def init_func(m):

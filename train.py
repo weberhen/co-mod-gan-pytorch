@@ -2,12 +2,8 @@
 Copyright (C) 2019 NVIDIA Corporation.  All rights reserved.
 Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 """
-import pdb
 import sys
-import os
 import torch
-import numpy as np
-from collections import OrderedDict
 from options.train_options import TrainOptions
 import data
 from util.iter_counter import IterationCounter
@@ -15,9 +11,8 @@ from logger import Logger
 from torchvision.utils import make_grid
 from trainers import create_trainer
 from save_remote_gs import init_remote, upload_remote
-from models.networks.sync_batchnorm import DataParallelWithCallback
 from pytorch_fid import fid_score
-
+print('Loading train.py')
 # parse options
 opt = TrainOptions().parse()
 
@@ -25,9 +20,6 @@ fid_model = fid_score
 # load remote 
 if opt.save_remote_gs is not None:
     init_remote(opt)
-
-# print options to help debugging
-print(' '.join(sys.argv))
 
 # load the dataset
 if opt.dataset_mode_val is not None:
@@ -149,5 +141,3 @@ for epoch in iter_counter.training_epochs():
     if epoch != 0 and epoch % 3 == 0 and opt.dataset_mode_train == 'cocomaskupdate':
         dataloader_train.dataset.update_dataset()
     iter_counter.record_epoch_end()
-
-print('Training was successfully finished.')

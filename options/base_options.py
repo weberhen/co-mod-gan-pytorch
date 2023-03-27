@@ -11,7 +11,7 @@ import torch
 import models
 import data
 import pickle
-
+print('Loading options/base_options.py')
 
 class BaseOptions():
     def __init__(self):
@@ -91,18 +91,6 @@ class BaseOptions():
         self.parser = parser
         return opt
 
-    def print_options(self, opt):
-        message = ''
-        message += '----------------- Options ---------------\n'
-        for k, v in sorted(vars(opt).items()):
-            comment = ''
-            default = self.parser.get_default(k)
-            if v != default:
-                comment = '\t[default: %s]' % str(default)
-            message += '{:>25}: {:<30}{}\n'.format(str(k), str(v), comment)
-        message += '----------------- End -------------------'
-        print(message)
-
     def option_file_path(self, opt, makedir=False):
         expr_dir = os.path.join(opt.checkpoints_dir, opt.name)
         if makedir:
@@ -141,7 +129,6 @@ class BaseOptions():
         opt = self.gather_options()
         opt.isTrain = self.isTrain   # train or test
 
-        self.print_options(opt)
         if opt.isTrain:
             self.save_options(opt)
 

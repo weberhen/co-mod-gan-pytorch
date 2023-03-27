@@ -8,7 +8,7 @@ import util.util as util
 import random
 import numpy as np
 from models.create_mask import MaskCreator
-
+print('Loading models/comod_model.py')
 
 class CoModModel(torch.nn.Module):
     @staticmethod

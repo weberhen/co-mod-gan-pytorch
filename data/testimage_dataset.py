@@ -5,7 +5,7 @@ from PIL import Image
 from data.image_folder import make_dataset
 import os
 import pdb
-
+print('Loading data/testimage_dataset.py')
 
 class TestImageDataset(BaseDataset):
     """ Dataset that loads images from directories
