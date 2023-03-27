@@ -7,16 +7,15 @@ import torch
 from options.train_options import TrainOptions
 import data
 from util.iter_counter import IterationCounter
-from logger import Logger
+from my_logger import Logger
 from torchvision.utils import make_grid
 from trainers import create_trainer
 from save_remote_gs import init_remote, upload_remote
-from pytorch_fid import fid_score
+
 print('Loading train.py')
 # parse options
 opt = TrainOptions().parse()
 
-fid_model = fid_score
 # load remote 
 if opt.save_remote_gs is not None:
     init_remote(opt)
