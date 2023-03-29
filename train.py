@@ -7,7 +7,7 @@ from options.train_options import TrainOptions
 import data
 from util.iter_counter import IterationCounter
 from my_logger import Logger
-from torchvision.utils import make_grid
+import torchvision
 from trainers import create_trainer
 from save_remote_gs import init_remote, upload_remote
 from data.zillow_dataset import ZillowDataset
@@ -45,7 +45,7 @@ trainer.save('latest')
 
 def get_psnr(generated, gt):
     generated = (generated+1)/2*255
-    bsize, c, h, w = gt.shape
+    _, c, h, w = gt.shape
     gt = (gt+1)/2*255
     mse = ((generated-gt)**2).sum(3).sum(2).sum(1)
     mse /= (c*h*w)
@@ -58,38 +58,12 @@ def display_batch(epoch, data_i):
         writer.add_scalar(k,v.mean().item(), iter_counter.total_steps_so_far)
     writer.write_console(epoch, iter_counter.epoch_iter, iter_counter.time_per_iter)
     num_print = min(4, data_i['input'].size(0))
-    writer.add_single_image('inputs',
-            (make_grid(trainer.get_latest_inputs()[:num_print])+1)/2,
-            iter_counter.total_steps_so_far)
     infer_out,inp = trainer.pix2pix_model.forward(data_i, mode='inference')
-    vis = (make_grid(inp[:num_print])+1)/2
-    writer.add_single_image('infer_in',
-            vis,
-            iter_counter.total_steps_so_far)
-    vis = (make_grid(infer_out[:num_print])+1)/2
-    vis = torch.clamp(vis, 0,1)
-    writer.add_single_image('infer_out',
-            vis,
-            iter_counter.total_steps_so_far)
-    generated = trainer.get_latest_generated()
-    for k,v in generated.items():
-        if v is None:
-            continue
-        if 'label' in k:
-            vis = make_grid(v[:num_print].expand(-1,3,-1,-1))[0]
-            writer.add_single_label(k,
-                    vis,
-                    iter_counter.total_steps_so_far)
-        else:
-            if v.size(1) == 3:
-                vis = (make_grid(v[:num_print])+1)/2
-                vis = torch.clamp(vis, 0,1)
-            else:
-                vis = make_grid(v[:num_print])
-            writer.add_single_image(k,
-                    vis,
-                    iter_counter.total_steps_so_far)
-    writer.write_html()
+    infer_out = (infer_out+1)/2
+    infer_out = infer_out.clamp(0,1)
+    # save inter_out as png
+    torchvision.utils.save_image(infer_out[:num_print], 'output.png', nrow=1, normalize=True, range=(0,1))
+    
 
 def main():
     for epoch in iter_counter.training_epochs():
@@ -130,14 +104,7 @@ def main():
                         psnr = get_psnr(generated, gt)
                         psnr_total += psnr
                         num += bsize
-                        # fid_model.add_sample((generated+1)/2,(gt+1)/2)
                     psnr_total /= num
-                    # fid = fid_model.calculate_activation_statistics()
-                    # writer.add_scalar("val.fid", fid, iter_counter.total_steps_so_far)
-                    # writer.write_scalar("val.fid", fid, iter_counter.total_steps_so_far)
-                    writer.add_scalar("val.psnr", psnr_total, iter_counter.total_steps_so_far)
-                    writer.write_scalar("val.psnr", psnr_total, iter_counter.total_steps_so_far)
-                    writer.write_html()
                     model.train()
         trainer.update_learning_rate(epoch)
         if epoch != 0 and epoch % 3 == 0 and opt.dataset_mode_train == 'cocomaskupdate':
