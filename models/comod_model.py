@@ -200,7 +200,7 @@ class CoModModel(torch.nn.Module):
         return noises
 
     def make_mask(self, data):
-        b,c,h,w = data['image'].shape
+        b,c,h,w = data['input'].shape
         # mask = torch.ones(b,1,h,w, device=self.device)
         if self.opt.isTrain:
             # generate random stroke mask
@@ -238,7 +238,7 @@ class CoModModel(torch.nn.Module):
             return [self.make_noise(batch, 1)]
 
     def preprocess_input(self, data):
-        b,c,h,w = data['image'].shape
+        b,c,h,w = data['input'].shape
         if 'mask' in data:
             if self.use_gpu():
                 data['mask'] = data['mask'].cuda()
@@ -246,12 +246,12 @@ class CoModModel(torch.nn.Module):
         else:
             mask = self.make_mask(data)
         if self.use_gpu():
-            data['image'] = data['image'].cuda()
+            data['input'] = data['input'].cuda()
         if 'mean_path_length' in data:
             mean_path_length = data['mean_path_length'].detach().cuda()
         else:
             mean_path_length = 0
-        return data['image'], data['mask'], mean_path_length
+        return data['input'], data['mask'], mean_path_length
 
     def g_path_regularize(self, fake_image, latents, mean_path_length, decay=0.01):
         noise = torch.randn_like(fake_image) / math.sqrt(

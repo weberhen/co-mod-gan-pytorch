@@ -36,7 +36,7 @@ class StyleGAN2Trainer():
         g_regularize = (i % self.opt.g_reg_every == 0) and not (self.opt.no_g_reg)
         if g_regularize:
             self.optimizer_G.zero_grad()
-            bsize = data['image'].size(0)
+            bsize = data['input'].size(0)
             data['mean_path_length'] = self.mean_path_length.expand(bsize)
             g_regs, self.mean_path_length \
                     = self.pix2pix_model(data, mode='g_reg')

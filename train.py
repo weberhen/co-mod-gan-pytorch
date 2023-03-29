@@ -2,7 +2,6 @@
 Copyright (C) 2019 NVIDIA Corporation.  All rights reserved.
 Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 """
-import sys
 import torch
 from options.train_options import TrainOptions
 import data
@@ -11,6 +10,7 @@ from my_logger import Logger
 from torchvision.utils import make_grid
 from trainers import create_trainer
 from save_remote_gs import init_remote, upload_remote
+from data.zillow_dataset import ZillowDataset
 
 print('Loading train.py')
 # parse options
@@ -20,11 +20,13 @@ opt = TrainOptions().parse()
 if opt.save_remote_gs is not None:
     init_remote(opt)
 
+opt.dataset_mode_val = None
 # load the dataset
 if opt.dataset_mode_val is not None:
     dataloader_train, dataloader_val = data.create_dataloader_trainval(opt)
 else:
-    dataloader_train = data.create_dataloader(opt)
+    # dataloader_train = data.create_dataloader(opt)
+    dataloader_train = torch.utils.data.DataLoader(ZillowDataset(opt), batch_size=opt.batchSize, shuffle=True, num_workers=0)
     dataloader_val = None
 
 # create trainer for our model
@@ -55,7 +57,7 @@ def display_batch(epoch, data_i):
     for k,v in losses.items():
         writer.add_scalar(k,v.mean().item(), iter_counter.total_steps_so_far)
     writer.write_console(epoch, iter_counter.epoch_iter, iter_counter.time_per_iter)
-    num_print = min(4, data_i['image'].size(0))
+    num_print = min(4, data_i['input'].size(0))
     writer.add_single_image('inputs',
             (make_grid(trainer.get_latest_inputs()[:num_print])+1)/2,
             iter_counter.total_steps_so_far)
@@ -89,54 +91,58 @@ def display_batch(epoch, data_i):
                     iter_counter.total_steps_so_far)
     writer.write_html()
 
-for epoch in iter_counter.training_epochs():
-    iter_counter.record_epoch_start(epoch)
-    for i, data_i in enumerate(dataloader_train, start=iter_counter.epoch_iter):
-        iter_counter.record_one_iteration()
-        # train discriminator
-        if not opt.freeze_D:
-            trainer.run_discriminator_one_step(data_i, i)
+def main():
+    for epoch in iter_counter.training_epochs():
+        iter_counter.record_epoch_start(epoch)
+        for i, data_i in enumerate(dataloader_train, start=iter_counter.epoch_iter):
+            iter_counter.record_one_iteration()
+            # train discriminator
+            if not opt.freeze_D:
+                trainer.run_discriminator_one_step(data_i, i)
 
-        # Training
-        # train generator
-        if i % opt.D_steps_per_G == 0:
-            trainer.run_generator_one_step(data_i, i)
+            # Training
+            # train generator
+            if i % opt.D_steps_per_G == 0:
+                trainer.run_generator_one_step(data_i, i)
 
-        if iter_counter.needs_displaying():
-            display_batch(epoch, data_i)
-        if opt.save_remote_gs is not None and iter_counter.needs_saving():
-            upload_remote(opt)
-        if iter_counter.needs_validation():
-            print('saving the latest model (epoch %d, total_steps %d)' %
-                  (epoch, iter_counter.total_steps_so_far))
-            trainer.save('epoch%d_step%d'%
+            if iter_counter.needs_displaying():
+                display_batch(epoch, data_i)
+            if opt.save_remote_gs is not None and iter_counter.needs_saving():
+                upload_remote(opt)
+            if iter_counter.needs_validation():
+                print('saving the latest model (epoch %d, total_steps %d)' %
                     (epoch, iter_counter.total_steps_so_far))
-            trainer.save('latest')
-            iter_counter.record_current_iter()
-            if dataloader_val is not None:
-                print("doing validation")
-                model.eval()
-                num = 0
-                psnr_total = 0
-                for ii, data_ii in enumerate(dataloader_val):
-                    with torch.no_grad():
-                        generated,_ = model(data_ii, mode='inference')
-                        generated = generated.cpu()
-                    gt = data_ii['image']
-                    bsize = gt.size(0)
-                    psnr = get_psnr(generated, gt)
-                    psnr_total += psnr
-                    num += bsize
-                    # fid_model.add_sample((generated+1)/2,(gt+1)/2)
-                psnr_total /= num
-                # fid = fid_model.calculate_activation_statistics()
-                # writer.add_scalar("val.fid", fid, iter_counter.total_steps_so_far)
-                # writer.write_scalar("val.fid", fid, iter_counter.total_steps_so_far)
-                writer.add_scalar("val.psnr", psnr_total, iter_counter.total_steps_so_far)
-                writer.write_scalar("val.psnr", psnr_total, iter_counter.total_steps_so_far)
-                writer.write_html()
-                model.train()
-    trainer.update_learning_rate(epoch)
-    if epoch != 0 and epoch % 3 == 0 and opt.dataset_mode_train == 'cocomaskupdate':
-        dataloader_train.dataset.update_dataset()
-    iter_counter.record_epoch_end()
+                trainer.save('epoch%d_step%d'%
+                        (epoch, iter_counter.total_steps_so_far))
+                trainer.save('latest')
+                iter_counter.record_current_iter()
+                if dataloader_val is not None:
+                    print("doing validation")
+                    model.eval()
+                    num = 0
+                    psnr_total = 0
+                    for ii, data_ii in enumerate(dataloader_val):
+                        with torch.no_grad():
+                            generated,_ = model(data_ii, mode='inference')
+                            generated = generated.cpu()
+                        gt = data_ii['input']
+                        bsize = gt.size(0)
+                        psnr = get_psnr(generated, gt)
+                        psnr_total += psnr
+                        num += bsize
+                        # fid_model.add_sample((generated+1)/2,(gt+1)/2)
+                    psnr_total /= num
+                    # fid = fid_model.calculate_activation_statistics()
+                    # writer.add_scalar("val.fid", fid, iter_counter.total_steps_so_far)
+                    # writer.write_scalar("val.fid", fid, iter_counter.total_steps_so_far)
+                    writer.add_scalar("val.psnr", psnr_total, iter_counter.total_steps_so_far)
+                    writer.write_scalar("val.psnr", psnr_total, iter_counter.total_steps_so_far)
+                    writer.write_html()
+                    model.train()
+        trainer.update_learning_rate(epoch)
+        if epoch != 0 and epoch % 3 == 0 and opt.dataset_mode_train == 'cocomaskupdate':
+            dataloader_train.dataset.update_dataset()
+        iter_counter.record_epoch_end()
+
+if __name__ == '__main__':
+    main()
