@@ -1,6 +1,4 @@
-import pdb
 import torch
-from models.networks.sync_batchnorm import DataParallelWithCallback
 import models
 #from models.pix2pix_model import Pix2PixModel
 print('Loading trainers/stylegan2_trainer.py')
@@ -9,12 +7,8 @@ class StyleGAN2Trainer():
     def __init__(self, opt):
         self.opt = opt
         self.pix2pix_model = models.create_model(opt)
-        if len(opt.gpu_ids) > 0:
-            self.pix2pix_model = DataParallelWithCallback(self.pix2pix_model,
-                                                          device_ids=opt.gpu_ids)
-            self.pix2pix_model_on_one_gpu = self.pix2pix_model.module
-        else:
-            self.pix2pix_model_on_one_gpu = self.pix2pix_model
+        
+        self.pix2pix_model_on_one_gpu = self.pix2pix_model
 
         self.generated = None
         self.inputs = None

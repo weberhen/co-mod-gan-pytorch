@@ -41,12 +41,9 @@ class CoModModel(torch.nn.Module):
         self.opt = opt
         self.truncation_mean = None
 
-        self.device = torch.device("cuda") if self.use_gpu() \
-                else torch.device("cpu")
-        self.FloatTensor = torch.cuda.FloatTensor if self.use_gpu() \
-            else torch.FloatTensor
-        self.ByteTensor = torch.cuda.ByteTensor if self.use_gpu() \
-            else torch.ByteTensor
+        self.device = torch.device("cuda") 
+        self.FloatTensor = torch.cuda.FloatTensor 
+        self.ByteTensor = torch.cuda.ByteTensor 
 
         self.netG, self.netG_ema, self.netD = self.initialize_networks(opt)
         if opt.factor is not None:
@@ -69,7 +66,7 @@ class CoModModel(torch.nn.Module):
             self.criterionGAN = networks.GANLoss(
                 opt.gan_mode, tensor=self.FloatTensor, opt=self.opt)
             if not opt.no_vgg_loss:
-                self.criterionVGG = networks.VGGLoss(self.opt.gpu_ids)
+                self.criterionVGG = networks.VGGLoss()
         
         if opt.truncation is not None:
             self.truncation_mean = self.mean_latent(4096)
@@ -207,11 +204,6 @@ class CoModModel(torch.nn.Module):
             return [self.make_noise(batch, 1)]
 
     def preprocess_input(self, data):
-        b,c,h,w = data['input'].shape
-        if self.use_gpu():
-            data['mask'] = data['mask'].cuda()
-        if self.use_gpu():
-            data['input'] = data['input'].cuda()
         if 'mean_path_length' in data:
             mean_path_length = data['mean_path_length'].detach().cuda()
         else:
@@ -385,5 +377,3 @@ class CoModModel(torch.nn.Module):
 
         return fake, real
 
-    def use_gpu(self):
-        return len(self.opt.gpu_ids) > 0

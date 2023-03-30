@@ -27,8 +27,6 @@ freeze_D: false
 fused_modconv: true
 g_reg_every: 4
 gan_mode: softplus
-gpu_ids:
-- 0
 image_dir: /root/datasets_ssd/zillow/
 init_type: null
 init_variance: 0.02
