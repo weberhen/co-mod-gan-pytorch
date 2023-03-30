@@ -3,9 +3,7 @@ import random
 from collections import OrderedDict
 import torch
 from torch import nn
-from torch.nn import functional as F
-from models.networks.op import FusedLeakyReLU, fused_leaky_relu, upfirdn2d
-from models.networks.stylegan2 import PixelNorm, EqualLinear, EqualConv2d,ConvLayer,StyledConv,ToRGB,ConvToRGB,TransConvLayer
+from models.networks.stylegan2 import PixelNorm, EqualLinear,ConvLayer,StyledConv,ToRGB
 import numpy as np
 
 from models.networks.base_network import BaseNetwork

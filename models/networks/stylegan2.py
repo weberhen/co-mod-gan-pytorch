@@ -19,6 +19,9 @@ print('Loading models/networks/stylegan2.py')
 #from base_network import BaseNetwork
 #from op import FusedLeakyReLU, fused_leaky_relu, upfirdn2d
 
+import torch.nn as nn
+import torch.nn.functional as F
+
 
 class PixelNorm(nn.Module):
     def __init__(self):
@@ -56,7 +59,6 @@ class Upsample(nn.Module):
 
     def forward(self, input):
         out = upfirdn2d(input, self.kernel, up=self.factor, down=1, pad=self.pad)
-
         return out
 
 
