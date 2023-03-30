@@ -88,7 +88,7 @@ class Logger:
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.plot(self.plot_times[name], self.plot_vals[name])
-        fig.savefig(os.path.join(self.plot_dir, '%s.png'%name))
+        
         plt.close()
     #add_image('image', torchvision.utils.make_grid(img), num_iter)
 

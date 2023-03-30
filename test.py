@@ -8,10 +8,12 @@ from tqdm import tqdm
 import numpy as np
 import torch
 from data.zillow_dataset import ZillowDataset
-from options.train_options import TrainOptions
 import models
+import omegaconf
 
-opt = TrainOptions().parse()
+# parse options with omegaconf
+opt = omegaconf.OmegaConf.load('conf/default.yaml')
+
 
 dataloader = torch.utils.data.DataLoader(
     ZillowDataset(opt),

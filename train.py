@@ -3,12 +3,12 @@ Copyright (C) 2019 NVIDIA Corporation.  All rights reserved.
 Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 """
 import torch
-from options.train_options import TrainOptions
 from util.iter_counter import IterationCounter
 from my_logger import Logger
 import torchvision
 from trainers import create_trainer
 from data.zillow_dataset import ZillowDataset
+import omegaconf
 
 print('Loading train.py')
 
@@ -50,10 +50,9 @@ def training_loop():
         iter_counter.record_epoch_end()
 
 if __name__ == '__main__':
-
-    # parse options
-    opt = TrainOptions().parse()
-
+    # parse options with omegaconf
+    opt = omegaconf.OmegaConf.load('conf/default.yaml')
+    
     # dataloader_train = data.create_dataloader(opt)
     dataloader_train = torch.utils.data.DataLoader(ZillowDataset(opt), batch_size=opt.batchSize, shuffle=True, num_workers=0)
 
