@@ -4,7 +4,6 @@ Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses
 """
 import torch
 from options.train_options import TrainOptions
-import data
 from util.iter_counter import IterationCounter
 from my_logger import Logger
 import torchvision
@@ -47,19 +46,6 @@ def training_loop():
                         (epoch, iter_counter.total_steps_so_far))
                 trainer.save('latest')
                 iter_counter.record_current_iter()
-                if dataloader_val is not None:
-                    print("doing validation")
-                    model.eval()
-                    num = 0
-                    
-                    for ii, data_ii in enumerate(dataloader_val):
-                        with torch.no_grad():
-                            generated,_ = model(data_ii, mode='inference')
-                            generated = generated.cpu()
-                        gt = data_ii['input']
-                        bsize = gt.size(0)
-                        num += bsize
-                    model.train()
         trainer.update_learning_rate(epoch)
         iter_counter.record_epoch_end()
 
@@ -68,14 +54,8 @@ if __name__ == '__main__':
     # parse options
     opt = TrainOptions().parse()
 
-    opt.dataset_mode_val = None
-    # load the dataset
-    if opt.dataset_mode_val is not None:
-        dataloader_train, dataloader_val = data.create_dataloader_trainval(opt)
-    else:
-        # dataloader_train = data.create_dataloader(opt)
-        dataloader_train = torch.utils.data.DataLoader(ZillowDataset(opt), batch_size=opt.batchSize, shuffle=True, num_workers=0)
-        dataloader_val = None
+    # dataloader_train = data.create_dataloader(opt)
+    dataloader_train = torch.utils.data.DataLoader(ZillowDataset(opt), batch_size=opt.batchSize, shuffle=True, num_workers=0)
 
     # create trainer for our model
     trainer = create_trainer(opt)

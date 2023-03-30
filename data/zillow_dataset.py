@@ -7,7 +7,7 @@ import os
 
 class ZillowDataset(torch.utils.data.Dataset):
     def __init__(self, args):
-        self.dataset_dir = args.train_image_dir
+        self.dataset_dir = args.image_dir
         self.in_size = args.load_size
         self.transform = transforms.Compose([
                 transforms.ToTensor(),
@@ -36,4 +36,7 @@ class ZillowDataset(torch.utils.data.Dataset):
         # make mask to be the same shape as input_image, zeros everywhere except for the center
         mask = torch.zeros_like(self.transform(input_image))[0,].unsqueeze(0)
         mask[:, self.in_size//4:self.in_size//4*3, self.in_size//4:self.in_size//4*3] = 1
-        return {'input': self.transform(input_image).cuda(), 'gt': self.transform(gt_image).cuda(), 'mask': mask.cuda()}
+        return {'input': self.transform(input_image).cuda(), 
+                'gt': self.transform(gt_image).cuda(), 
+                'mask': mask.cuda(),
+                'path': str(index)+'.png'}
