@@ -1,4 +1,4 @@
-print('Loading network/zillow_dataset.py')
+print('Loading data/zillow_dataset.py')
 from PIL import Image
 from torchvision import transforms
 import torch.utils.data
