@@ -7,7 +7,6 @@ import models.networks as networks
 import util.util as util
 import random
 import numpy as np
-from models.create_mask import MaskCreator
 print('Loading models/comod_model.py')
 
 class CoModModel(torch.nn.Module):
@@ -71,7 +70,7 @@ class CoModModel(torch.nn.Module):
                 opt.gan_mode, tensor=self.FloatTensor, opt=self.opt)
             if not opt.no_vgg_loss:
                 self.criterionVGG = networks.VGGLoss(self.opt.gpu_ids)
-        self.mask_creator = MaskCreator(opt.path_objectshape_list, opt.path_objectshape_base)
+        
         if opt.truncation is not None:
             self.truncation_mean = self.mean_latent(4096)
 
@@ -199,37 +198,7 @@ class CoModModel(torch.nn.Module):
 
         return noises
 
-    def make_mask(self, data):
-        b,c,h,w = data['input'].shape
-        # mask = torch.ones(b,1,h,w, device=self.device)
-        if self.opt.isTrain:
-            # generate random stroke mask
-            mask1 = self.mask_creator.stroke_mask(h, w, max_length=min(h,w)/2)
-            # generate object/square mask
-            ri = random.randint(0,3)
-            if self.opt.path_objectshape_base is not None and (ri  == 1 or ri == 0):
-                mask2 = self.mask_creator.object_mask(h, w)
-            else:
-                mask2 = self.mask_creator.rectangle_mask(h, w, 
-                        min(h,w)//4, min(h,w)//2)
-            # use the mix of two masks
-            mask = (mask1+mask2>0)
-            mask = mask.astype(np.float)
-            mask = self.FloatTensor(mask)[None, None,...].expand(b,-1,-1,-1)
-            data['mask'] = mask
-        else:
-            if self.use_gpu():
-                data['mask'] = data['mask'].cuda()
-            mask = data['mask']
-        # # make mask all black
-        mask = mask * 0
-        mask = mask + 1
-        # put mask in the center (random between 25% and 50%)
-        rand_mask_size = random.randint(h//4, h//2)
-        mask[:, :, h//2-rand_mask_size//2:h//2+rand_mask_size//2,w//2-rand_mask_size//2:w//2+rand_mask_size//2] = 0
-        data['mask'] = mask
-        return mask
-
+    
     def mixing_noise(self, batch):
         if self.opt.mixing > 0 and random.random() < self.opt.mixing:
             noise =  self.make_noise(batch, 2)
@@ -239,12 +208,8 @@ class CoModModel(torch.nn.Module):
 
     def preprocess_input(self, data):
         b,c,h,w = data['input'].shape
-        if 'mask' in data:
-            if self.use_gpu():
-                data['mask'] = data['mask'].cuda()
-            mask = data['mask']
-        else:
-            mask = self.make_mask(data)
+        if self.use_gpu():
+            data['mask'] = data['mask'].cuda()
         if self.use_gpu():
             data['input'] = data['input'].cuda()
         if 'mean_path_length' in data:

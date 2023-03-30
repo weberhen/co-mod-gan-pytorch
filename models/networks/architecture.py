@@ -12,7 +12,7 @@ print('Loading models/networks/architecture.py')
 class VGG19(torch.nn.Module):
     def __init__(self, requires_grad=False):
         super().__init__()
-        vgg_pretrained_features = torchvision.models.vgg19(pretrained=True).features
+        vgg_pretrained_features = torchvision.models.vgg19(weights='VGG19_Weights.DEFAULT').features
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()
         self.slice3 = torch.nn.Sequential()
