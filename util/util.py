@@ -11,6 +11,18 @@ from PIL import Image
 import os
 import argparse
 import dill as pickle
+import torchvision
+
+def display_batch(epoch, data_i, trainer, writer, iter_counter):
+    losses = trainer.get_latest_losses()
+    for k,v in losses.items():
+        writer.add_scalar(k,v.mean().item(), iter_counter.total_steps_so_far)
+    writer.write_console(epoch, iter_counter.epoch_iter, iter_counter.time_per_iter)
+    num_print = min(4, data_i['input'].size(0))
+    infer_out, _ = trainer.pix2pix_model.forward(data_i, mode='inference')
+    infer_out = (infer_out+1)/2
+    infer_out = infer_out.clamp(0,1)
+    torchvision.utils.save_image(infer_out[:num_print], 'output.png', nrow=1, normalize=True, range=(0,1))
 
 def save_obj(obj, name):
     with open(name, 'wb') as f:

@@ -4,9 +4,7 @@ import glob
 folder_path = '/root/codes/co-mod-gan-pytorch'  # replace with the path to your folder
 
 # Get a list of all files in the folder
-file_paths = glob.glob(os.path.join(folder_path, '*'))
-# and subfolders
-file_paths += glob.glob(os.path.join(folder_path, '**/*'), recursive=True)
+file_paths = glob.glob(os.path.join(folder_path, '**/*'), recursive=True)
 
 # ignore hidden files
 file_paths = [f for f in file_paths if not f.startswith('.')]
